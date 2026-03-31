@@ -437,12 +437,12 @@ function DetailBlocAccordion({
           height="12"
           viewBox="0 0 12 12"
           fill="none"
-          className={`mt-1 shrink-0 transition-transform duration-150 ${isOpen ? "rotate-90" : ""}`}
+          className={`mt-1 shrink-0 text-navy transition-transform duration-150 ${isOpen ? "rotate-90" : ""}`}
         >
           <path
             d="M4.5 2.5L8 6L4.5 9.5"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -504,7 +504,7 @@ function EcoleGroupCard({ group }: { group: EcoleGroup }) {
         <div className="flex items-start justify-between gap-3 w-full">
           <div className="flex items-start gap-2">
             <span
-              className={`mt-0.5 text-xs text-text-muted transition-transform duration-150 inline-block ${expanded ? "rotate-90" : ""}`}
+              className={`mt-0.5 text-xs text-navy transition-transform duration-150 inline-block ${expanded ? "rotate-90" : ""}`}
             >
               ▶
             </span>
@@ -632,12 +632,12 @@ function ChevronIcon({ open }: { open: boolean }) {
       height="14"
       viewBox="0 0 14 14"
       fill="none"
-      className={`shrink-0 transition-transform duration-150 ${open ? "rotate-90" : ""}`}
+      className={`shrink-0 text-navy transition-transform duration-150 ${open ? "rotate-90" : ""}`}
     >
       <path
         d="M5 3L9.5 7L5 11"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -799,7 +799,7 @@ function TitleDetailView({
             {/* Expand to full detail */}
             <button
               onClick={() => setShowBlocDetail(!showBlocDetail)}
-              className="text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+              className="text-xs font-medium text-navy hover:text-navy-light transition-colors underline underline-offset-2"
             >
               {showBlocDetail ? "▲ Masquer le détail" : "▼ Voir le détail des compétences"}
             </button>
@@ -842,7 +842,7 @@ function TitleDetailView({
                 {(title.secteursActivite.join(", ") + title.typesEmploi.join(", ")).length > 200 && (
                   <button
                     onClick={() => setShowDebouches(true)}
-                    className="mt-1 text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+                    className="mt-1 text-xs font-medium text-navy hover:text-navy-light transition-colors underline underline-offset-2"
                   >
                     ▼ Voir tout
                   </button>
@@ -872,7 +872,7 @@ function TitleDetailView({
                 )}
                 <button
                   onClick={() => setShowDebouches(false)}
-                  className="mt-2 text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+                  className="mt-2 text-xs font-medium text-navy hover:text-navy-light transition-colors underline underline-offset-2"
                 >
                   ▲ Réduire
                 </button>
