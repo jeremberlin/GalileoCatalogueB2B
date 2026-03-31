@@ -887,6 +887,13 @@ export default function DiscoveryView({
     }
   }, [searchQuery]);
 
+  const handleBackToDiscover = useCallback(() => {
+    setSelectedTitle(null);
+    setPendingSearch("");
+    setSearchQuery("");
+    setView("browse");
+  }, []);
+
   const toggleVille = useCallback((ville: string) => {
     setSelectedVilles((prev) =>
       prev.includes(ville)
@@ -1080,31 +1087,46 @@ export default function DiscoveryView({
   /* ── RENDER: title-detail view ── */
 
   if (view === "title-detail" && selectedTitle) {
+    const filteredBlocs = selectedTitle.blocsCompetences.filter(
+      (bloc) => bloc.libelle && bloc.libelle.trim() !== ""
+    );
+
     return (
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-5 py-8">
-          {/* Back button */}
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors mb-6"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M8.5 3L4.5 7L8.5 11"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Retour
-          </button>
+        <div className="max-w-6xl mx-auto px-5 py-6">
+          {/* Navigation */}
+          <div className="flex items-center justify-between mb-5">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path
+                  d="M8.5 3L4.5 7L8.5 11"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Retour
+            </button>
+            <button
+              onClick={handleBackToDiscover}
+              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt hover:text-text-primary transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 3h8M2 6h8M2 9h5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+              </svg>
+              Découvrir
+            </button>
+          </div>
 
           {/* Title header */}
           <h2 className="text-xl font-bold text-text-primary leading-snug">
             {selectedTitle.intitule}
           </h2>
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary mb-6">
             <span className="font-medium">{selectedTitle.numeroFiche}</span>
             {selectedTitle.niveau && (
               <>
@@ -1126,83 +1148,79 @@ export default function DiscoveryView({
             )}
           </div>
 
-          {/* Compétences certifiées */}
-          {selectedTitle.blocsCompetences.length > 0 && (
-            <div className="mt-8">
+          {/* Two-column layout: formations (left) + compétences (right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* LEFT COLUMN: Formations + Débouchés */}
+            <div>
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-px flex-1 bg-border" />
-                <span className="text-xs font-medium text-text-muted px-2">
-                  Compétences certifiées
+                <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
+                  {selectedTitleFormations.length} formation{selectedTitleFormations.length !== 1 ? "s" : ""} disponible{selectedTitleFormations.length !== 1 ? "s" : ""}
                 </span>
                 <div className="h-px flex-1 bg-border" />
               </div>
+
+              {filterBar}
+              {activeExtraTags}
+
+              <EcoleGroupList formations={selectedTitleFormations} />
+
+              {/* Débouchés */}
+              {(selectedTitle.secteursActivite.length > 0 ||
+                selectedTitle.typesEmploi.length > 0) && (
+                <div className="mt-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="h-px flex-1 bg-border" />
+                    <span className="text-xs font-medium text-text-muted px-2">
+                      Débouchés
+                    </span>
+                    <div className="h-px flex-1 bg-border" />
+                  </div>
+                  {selectedTitle.secteursActivite.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-xs font-semibold text-text-secondary mb-1">
+                        Secteurs d'activité
+                      </p>
+                      <p className="text-sm text-text-primary">
+                        {selectedTitle.secteursActivite.join(", ")}
+                      </p>
+                    </div>
+                  )}
+                  {selectedTitle.typesEmploi.length > 0 && (
+                    <div>
+                      <p className="text-xs font-semibold text-text-secondary mb-1">
+                        Métiers
+                      </p>
+                      <p className="text-sm text-text-primary">
+                        {selectedTitle.typesEmploi.join(", ")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT COLUMN: Compétences certifiées */}
+            {filteredBlocs.length > 0 && (
               <div>
-                {selectedTitle.blocsCompetences
-                  .filter(
-                    (bloc) => bloc.libelle && bloc.libelle.trim() !== ""
-                  )
-                  .map((bloc, i) => (
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
+                    {filteredBlocs.length} bloc{filteredBlocs.length !== 1 ? "s" : ""} de compétences
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+                <div className="lg:max-h-[calc(100vh-280px)] lg:overflow-y-auto lg:pr-2 custom-scrollbar">
+                  {filteredBlocs.map((bloc, i) => (
                     <DetailBlocAccordion
                       key={bloc.code || i}
                       bloc={bloc}
-                      defaultOpen={i === 0}
+                      defaultOpen={false}
                     />
                   ))}
-              </div>
-            </div>
-          )}
-
-          {/* Débouchés */}
-          {(selectedTitle.secteursActivite.length > 0 ||
-            selectedTitle.typesEmploi.length > 0) && (
-            <div className="mt-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs font-medium text-text-muted px-2">
-                  Débouchés
-                </span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-              {selectedTitle.secteursActivite.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-xs font-semibold text-text-secondary mb-1">
-                    Secteurs d&apos;activité
-                  </p>
-                  <p className="text-sm text-text-primary">
-                    {selectedTitle.secteursActivite.join(", ")}
-                  </p>
                 </div>
-              )}
-              {selectedTitle.typesEmploi.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-text-secondary mb-1">
-                    Métiers
-                  </p>
-                  <p className="text-sm text-text-primary">
-                    {selectedTitle.typesEmploi.join(", ")}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Formations disponibles — grouped by école */}
-          <div className="mt-8">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs font-medium text-text-muted px-2">
-                {selectedTitleFormations.length} formation
-                {selectedTitleFormations.length !== 1 ? "s" : ""} disponible
-                {selectedTitleFormations.length !== 1 ? "s" : ""}
-              </span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-
-            {/* Filters for the detail view too */}
-            {filterBar}
-            {activeExtraTags}
-
-            <EcoleGroupList formations={selectedTitleFormations} />
+              </div>
+            )}
           </div>
         </div>
       </div>
