@@ -697,9 +697,39 @@ function TitleDetailView({
 }) {
   const [showBlocDetail, setShowBlocDetail] = useState(false);
   const [showDebouches, setShowDebouches] = useState(false);
+  const [filterVille, setFilterVille] = useState<string | null>(null);
+  const [filterDuree, setFilterDuree] = useState<string | null>(null);
 
   const hasDebouches =
     title.secteursActivite.length > 0 || title.typesEmploi.length > 0;
+
+  // Unique villes and durées from this title's formations
+  const availableVilles = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const f of formations) {
+      if (f.ville) counts.set(f.ville, (counts.get(f.ville) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([v]) => v);
+  }, [formations]);
+
+  const availableDurees = useMemo(() => {
+    const set = new Set<string>();
+    for (const f of formations) {
+      if (f.duree) set.add(f.duree);
+    }
+    return Array.from(set).sort();
+  }, [formations]);
+
+  // Filtered formations
+  const detailFilteredFormations = useMemo(() => {
+    return formations.filter((f) => {
+      if (filterVille && f.ville !== filterVille) return false;
+      if (filterDuree && f.duree !== filterDuree) return false;
+      return true;
+    });
+  }, [formations, filterVille, filterDuree]);
 
   // Truncate débouchés text for preview
   const debouchesPreview = (() => {
@@ -820,7 +850,61 @@ function TitleDetailView({
 
         {/* ── Formations disponibles ── */}
         <div className="mt-6">
-          <EcoleGroupList formations={formations} />
+          {/* Local filters: ville + durée */}
+          {(availableVilles.length > 1 || availableDurees.length > 1) && (
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-4">
+              {availableVilles.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-text-secondary">Ville</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    <Pill
+                      label="Toutes"
+                      active={filterVille === null}
+                      onClick={() => setFilterVille(null)}
+                    />
+                    {availableVilles.slice(0, 5).map((v) => (
+                      <Pill
+                        key={v}
+                        label={v}
+                        active={filterVille === v}
+                        onClick={() => setFilterVille(filterVille === v ? null : v)}
+                      />
+                    ))}
+                    {availableVilles.length > 5 && (
+                      <DropdownMultiSelect
+                        label={`+${availableVilles.length - 5}`}
+                        items={availableVilles.slice(5)}
+                        selectedItems={filterVille ? [filterVille] : []}
+                        onToggle={(v) => setFilterVille(filterVille === v ? null : v)}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+              {availableDurees.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-text-secondary">Durée</span>
+                  <div className="flex gap-1.5">
+                    <Pill
+                      label="Toutes"
+                      active={filterDuree === null}
+                      onClick={() => setFilterDuree(null)}
+                    />
+                    {availableDurees.map((d) => (
+                      <Pill
+                        key={d}
+                        label={d}
+                        active={filterDuree === d}
+                        onClick={() => setFilterDuree(filterDuree === d ? null : d)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          <EcoleGroupList formations={detailFilteredFormations} />
         </div>
 
         {/* ── Débouchés: compact with expand ── */}
