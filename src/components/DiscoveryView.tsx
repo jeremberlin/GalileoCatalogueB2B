@@ -680,6 +680,211 @@ function DomaineAccordion({
   );
 }
 
+/* ───────────────────────── title detail view ───────────────────────── */
+
+function TitleDetailView({
+  title,
+  filteredBlocs,
+  formations,
+  onBack,
+  onBackToDiscover,
+}: {
+  title: RncpTitle;
+  filteredBlocs: BlocCompetences[];
+  formations: Formation[];
+  onBack: () => void;
+  onBackToDiscover: () => void;
+}) {
+  const [showBlocDetail, setShowBlocDetail] = useState(false);
+  const [showDebouches, setShowDebouches] = useState(false);
+
+  const hasDebouches =
+    title.secteursActivite.length > 0 || title.typesEmploi.length > 0;
+
+  // Truncate débouchés text for preview
+  const debouchesPreview = (() => {
+    const parts: string[] = [];
+    if (title.typesEmploi.length > 0) {
+      parts.push(title.typesEmploi.join(", "));
+    }
+    if (title.secteursActivite.length > 0) {
+      parts.push(title.secteursActivite.join(", "));
+    }
+    const full = parts.join(" · ");
+    if (full.length > 200) return full.slice(0, 200) + "...";
+    return full;
+  })();
+
+  return (
+    <div className="flex-1 overflow-y-auto">
+      <div className="max-w-4xl mx-auto px-5 py-6">
+        {/* Navigation */}
+        <div className="flex items-center justify-between mb-5">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path
+                d="M8.5 3L4.5 7L8.5 11"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Retour
+          </button>
+          <button
+            onClick={onBackToDiscover}
+            className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt hover:text-text-primary transition-colors"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 3h8M2 6h8M2 9h5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+            </svg>
+            Découvrir
+          </button>
+        </div>
+
+        {/* Title header */}
+        <h2 className="text-xl font-bold text-text-primary leading-snug">
+          {title.intitule}
+        </h2>
+        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
+          <span className="font-medium">{title.numeroFiche}</span>
+          {title.niveau && (
+            <>
+              <span className="text-border">·</span>
+              <NiveauBadge niveau={title.niveau} />
+            </>
+          )}
+          {title.niveauRncp !== null && (
+            <>
+              <span className="text-border">·</span>
+              <span>Niveau {title.niveauRncp}</span>
+            </>
+          )}
+          {title.domaine && (
+            <>
+              <span className="text-border">·</span>
+              <span>{title.domaine}</span>
+            </>
+          )}
+        </div>
+
+        {/* ── Compétences: compact summary ── */}
+        {filteredBlocs.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs font-medium text-text-muted px-2">
+                {filteredBlocs.length} bloc{filteredBlocs.length !== 1 ? "s" : ""} de compétences
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            {/* Compact bullet list of bloc titles */}
+            <ul className="space-y-1.5 mb-2">
+              {filteredBlocs.map((bloc) => (
+                <li
+                  key={bloc.code}
+                  className="flex items-start gap-2 text-sm text-text-primary"
+                >
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-navy/40" />
+                  <span>{bloc.libelle}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Expand to full detail */}
+            <button
+              onClick={() => setShowBlocDetail(!showBlocDetail)}
+              className="text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+            >
+              {showBlocDetail ? "▲ Masquer le détail" : "▼ Voir le détail des compétences"}
+            </button>
+
+            {showBlocDetail && (
+              <div className="mt-3 border-t border-border-light pt-3">
+                {filteredBlocs.map((bloc, i) => (
+                  <DetailBlocAccordion
+                    key={bloc.code || i}
+                    bloc={bloc}
+                    defaultOpen={i === 0}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Formations disponibles ── */}
+        <div className="mt-6">
+          <EcoleGroupList formations={formations} />
+        </div>
+
+        {/* ── Débouchés: compact with expand ── */}
+        {hasDebouches && (
+          <div className="mt-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs font-medium text-text-muted px-2">
+                Débouchés
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            {!showDebouches ? (
+              <>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  {debouchesPreview}
+                </p>
+                {(title.secteursActivite.join(", ") + title.typesEmploi.join(", ")).length > 200 && (
+                  <button
+                    onClick={() => setShowDebouches(true)}
+                    className="mt-1 text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+                  >
+                    ▼ Voir tout
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                {title.secteursActivite.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-semibold text-text-secondary mb-1">
+                      Secteurs d'activité
+                    </p>
+                    <p className="text-sm text-text-primary leading-relaxed">
+                      {title.secteursActivite.join(", ")}
+                    </p>
+                  </div>
+                )}
+                {title.typesEmploi.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-text-secondary mb-1">
+                      Métiers
+                    </p>
+                    <p className="text-sm text-text-primary leading-relaxed">
+                      {title.typesEmploi.join(", ")}
+                    </p>
+                  </div>
+                )}
+                <button
+                  onClick={() => setShowDebouches(false)}
+                  className="mt-2 text-xs font-medium text-blue-gray hover:text-navy transition-colors"
+                >
+                  ▲ Réduire
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ───────────────────────── main component ───────────────────────── */
 
 export default function DiscoveryView({
@@ -1092,138 +1297,13 @@ export default function DiscoveryView({
     );
 
     return (
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-5 py-6">
-          {/* Navigation */}
-          <div className="flex items-center justify-between mb-5">
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-1 text-sm text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path
-                  d="M8.5 3L4.5 7L8.5 11"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Retour
-            </button>
-            <button
-              onClick={handleBackToDiscover}
-              className="flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-medium text-text-secondary hover:bg-surface-alt hover:text-text-primary transition-colors"
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path d="M2 3h8M2 6h8M2 9h5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-              </svg>
-              Découvrir
-            </button>
-          </div>
-
-          {/* Title header */}
-          <h2 className="text-xl font-bold text-text-primary leading-snug">
-            {selectedTitle.intitule}
-          </h2>
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary mb-6">
-            <span className="font-medium">{selectedTitle.numeroFiche}</span>
-            {selectedTitle.niveau && (
-              <>
-                <span className="text-border">·</span>
-                <NiveauBadge niveau={selectedTitle.niveau} />
-              </>
-            )}
-            {selectedTitle.niveauRncp !== null && (
-              <>
-                <span className="text-border">·</span>
-                <span>Niveau {selectedTitle.niveauRncp}</span>
-              </>
-            )}
-            {selectedTitle.domaine && (
-              <>
-                <span className="text-border">·</span>
-                <span>{selectedTitle.domaine}</span>
-              </>
-            )}
-          </div>
-
-          {/* Two-column layout: compétences (left) + formations (right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* LEFT COLUMN: Compétences certifiées + Débouchés */}
-            {filteredBlocs.length > 0 && (
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
-                    {filteredBlocs.length} bloc{filteredBlocs.length !== 1 ? "s" : ""} de compétences
-                  </span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
-                <div className="lg:max-h-[calc(100vh-280px)] lg:overflow-y-auto lg:pr-2 custom-scrollbar">
-                  {filteredBlocs.map((bloc, i) => (
-                    <DetailBlocAccordion
-                      key={bloc.code || i}
-                      bloc={bloc}
-                      defaultOpen={false}
-                    />
-                  ))}
-                </div>
-
-                {/* Débouchés */}
-                {(selectedTitle.secteursActivite.length > 0 ||
-                  selectedTitle.typesEmploi.length > 0) && (
-                  <div className="mt-6">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs font-medium text-text-muted px-2">
-                        Débouchés
-                      </span>
-                      <div className="h-px flex-1 bg-border" />
-                    </div>
-                    {selectedTitle.secteursActivite.length > 0 && (
-                      <div className="mb-3">
-                        <p className="text-xs font-semibold text-text-secondary mb-1">
-                          Secteurs d'activité
-                        </p>
-                        <p className="text-sm text-text-primary">
-                          {selectedTitle.secteursActivite.join(", ")}
-                        </p>
-                      </div>
-                    )}
-                    {selectedTitle.typesEmploi.length > 0 && (
-                      <div>
-                        <p className="text-xs font-semibold text-text-secondary mb-1">
-                          Métiers
-                        </p>
-                        <p className="text-sm text-text-primary">
-                          {selectedTitle.typesEmploi.join(", ")}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* RIGHT COLUMN: Formations disponibles */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
-                  {selectedTitleFormations.length} formation{selectedTitleFormations.length !== 1 ? "s" : ""} disponible{selectedTitleFormations.length !== 1 ? "s" : ""}
-                </span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-
-              {filterBar}
-              {activeExtraTags}
-
-              <EcoleGroupList formations={selectedTitleFormations} />
-            </div>
-          </div>
-        </div>
-      </div>
+      <TitleDetailView
+        title={selectedTitle}
+        filteredBlocs={filteredBlocs}
+        formations={selectedTitleFormations}
+        onBack={handleBack}
+        onBackToDiscover={handleBackToDiscover}
+      />
     );
   }
 
