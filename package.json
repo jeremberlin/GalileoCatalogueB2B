@@ -1,0 +1,35 @@
+{
+  "name": "galileo-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "build:data": "tsx scripts/build-data.ts",
+    "build:rncp": "tsx scripts/enrich-rncp.ts",
+    "build:all-data": "tsx scripts/build-data.ts && tsx scripts/enrich-rncp.ts"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.5.9",
+    "minisearch": "^7.2.0",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sax": "^1.6.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.37",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/sax": "^1.2.7",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}
