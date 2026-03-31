@@ -27,7 +27,9 @@ export default function Home() {
         const res = await fetch(`${base}/formations.json`);
         if (!res.ok) throw new Error("Failed to load formations");
         const rawData: FormationRaw[] = await res.json();
-        const normalized = rawData.map((f) => normalizeFormation(f));
+        const normalized = rawData
+          .filter((f) => f.rythme !== "Contrat Pro")
+          .map((f) => normalizeFormation(f));
         setFormations(normalized);
         const allTitles = buildRncpTitles(normalized);
         setTitles(allTitles.filter((t) => t.blocsCompetences.length > 0));

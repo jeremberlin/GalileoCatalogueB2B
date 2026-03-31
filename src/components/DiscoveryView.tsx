@@ -44,6 +44,61 @@ function compactVilles(villes: string[], max: number): string {
   return label;
 }
 
+/** Clean a formation nomProduit for display: strip école prefix, dates, year suffixes, and deduplicate segments */
+function cleanFormationName(nomProduit: string, ecole: string, ville: string): string {
+  let name = nomProduit;
+
+  // 1. Remove école/BU prefix: strip everything up to and including the first " - " after school/city part
+  // Match patterns like "ESG Aix en provence - ", "DIGITAL CAMPUS - Bordeaux - ", "HETIC - ", etc.
+  const prefixPattern = new RegExp(
+    `^${ecole.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*-\\s*`,
+    "i"
+  );
+  name = name.replace(prefixPattern, "");
+  // Also try stripping a city segment after the école name was removed
+  if (ville) {
+    const cityPrefixPattern = new RegExp(
+      `^${ville.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*-\\s*`,
+      "i"
+    );
+    name = name.replace(cityPrefixPattern, "");
+  }
+  // Fallback: if the original nomProduit starts with an ALL-CAPS word followed by " - ", strip that prefix
+  if (name === nomProduit) {
+    name = name.replace(/^[A-ZÀ-ÖØ-Ý][A-ZÀ-ÖØ-Ý\s]+?(?:\s*-\s*[A-Za-zÀ-ÿ]+)?\s*-\s*/, "");
+  }
+
+  // 2. Remove date suffixes like " - SEPTEMBRE 2026 - 2027"
+  name = name.replace(/\s*-\s*[A-ZÉÈÊË]+\s+20\d{2}\s*-\s*20\d{2}$/, "");
+
+  // 3. Remove "annee N" / "année N" patterns
+  name = name.replace(/\s*-\s*(?:annee|année)\s+\d+/gi, "");
+  name = name.replace(/\s*-\s*\d+(?:e|è|ème|ère)\s+année/gi, "");
+
+  // 4. Remove duplicate consecutive segments (split on " - ")
+  const segments = name.split(/\s*-\s*/);
+  const deduped: string[] = [];
+  for (const seg of segments) {
+    const trimmed = seg.trim();
+    if (!trimmed) continue;
+    // Check if this segment is already present (case-insensitive, accent-insensitive)
+    const norm = normalizeText(trimmed);
+    const isDuplicate = deduped.some((prev) => {
+      const prevNorm = normalizeText(prev);
+      return prevNorm === norm || prevNorm.includes(norm) || norm.includes(prevNorm);
+    });
+    if (!isDuplicate) {
+      deduped.push(trimmed);
+    }
+  }
+  name = deduped.join(" - ");
+
+  // 5. Trim trailing " - " and whitespace
+  name = name.replace(/\s*-\s*$/, "").trim();
+
+  return name || nomProduit;
+}
+
 /** Check if a title matches the given filters, returning the filtered formations */
 function filterTitleFormations(
   title: RncpTitle,
@@ -468,16 +523,8 @@ function EcoleGroupCard({ group }: { group: EcoleGroup }) {
             {group.villes.join(" · ")}
           </p>
         )}
-        {(group.rythmes.length > 0 || group.durees.length > 0) && (
+        {group.durees.length > 0 && (
           <div className="mt-1.5 ml-5 flex flex-wrap gap-1.5">
-            {group.rythmes.map((r) => (
-              <span
-                key={r}
-                className="inline-block rounded-full bg-surface-alt px-2 py-0.5 text-xs text-text-secondary"
-              >
-                {r}
-              </span>
-            ))}
             {group.durees.map((d) => (
               <span
                 key={d}
@@ -503,11 +550,13 @@ function EcoleGroupCard({ group }: { group: EcoleGroup }) {
                     className="flex items-center justify-between text-xs text-text-secondary py-0.5 pl-2"
                   >
                     <span>
-                      {f.duree && <span>{f.duree}</span>}
-                      {f.duree && f.rythme && (
-                        <span className="mx-1.5 text-border">·</span>
+                      <span>{cleanFormationName(f.nomProduit, group.ecole, city)}</span>
+                      {f.duree && (
+                        <>
+                          <span className="mx-1.5 text-border">&middot;</span>
+                          <span>{f.duree}</span>
+                        </>
                       )}
-                      {f.rythme && <span>{f.rythme}</span>}
                     </span>
                     {f.prix !== null && f.prix > 0 && (
                       <span className="tabular-nums text-text-primary font-medium">
