@@ -1148,59 +1148,9 @@ export default function DiscoveryView({
             )}
           </div>
 
-          {/* Two-column layout: formations (left) + compétences (right) */}
+          {/* Two-column layout: compétences (left) + formations (right) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* LEFT COLUMN: Formations + Débouchés */}
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-px flex-1 bg-border" />
-                <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
-                  {selectedTitleFormations.length} formation{selectedTitleFormations.length !== 1 ? "s" : ""} disponible{selectedTitleFormations.length !== 1 ? "s" : ""}
-                </span>
-                <div className="h-px flex-1 bg-border" />
-              </div>
-
-              {filterBar}
-              {activeExtraTags}
-
-              <EcoleGroupList formations={selectedTitleFormations} />
-
-              {/* Débouchés */}
-              {(selectedTitle.secteursActivite.length > 0 ||
-                selectedTitle.typesEmploi.length > 0) && (
-                <div className="mt-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs font-medium text-text-muted px-2">
-                      Débouchés
-                    </span>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-                  {selectedTitle.secteursActivite.length > 0 && (
-                    <div className="mb-3">
-                      <p className="text-xs font-semibold text-text-secondary mb-1">
-                        Secteurs d'activité
-                      </p>
-                      <p className="text-sm text-text-primary">
-                        {selectedTitle.secteursActivite.join(", ")}
-                      </p>
-                    </div>
-                  )}
-                  {selectedTitle.typesEmploi.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-text-secondary mb-1">
-                        Métiers
-                      </p>
-                      <p className="text-sm text-text-primary">
-                        {selectedTitle.typesEmploi.join(", ")}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT COLUMN: Compétences certifiées */}
+            {/* LEFT COLUMN: Compétences certifiées + Débouchés */}
             {filteredBlocs.length > 0 && (
               <div>
                 <div className="flex items-center gap-3 mb-4">
@@ -1219,8 +1169,58 @@ export default function DiscoveryView({
                     />
                   ))}
                 </div>
+
+                {/* Débouchés */}
+                {(selectedTitle.secteursActivite.length > 0 ||
+                  selectedTitle.typesEmploi.length > 0) && (
+                  <div className="mt-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-xs font-medium text-text-muted px-2">
+                        Débouchés
+                      </span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                    {selectedTitle.secteursActivite.length > 0 && (
+                      <div className="mb-3">
+                        <p className="text-xs font-semibold text-text-secondary mb-1">
+                          Secteurs d'activité
+                        </p>
+                        <p className="text-sm text-text-primary">
+                          {selectedTitle.secteursActivite.join(", ")}
+                        </p>
+                      </div>
+                    )}
+                    {selectedTitle.typesEmploi.length > 0 && (
+                      <div>
+                        <p className="text-xs font-semibold text-text-secondary mb-1">
+                          Métiers
+                        </p>
+                        <p className="text-sm text-text-primary">
+                          {selectedTitle.typesEmploi.join(", ")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
+
+            {/* RIGHT COLUMN: Formations disponibles */}
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-xs font-medium text-text-muted px-2 whitespace-nowrap">
+                  {selectedTitleFormations.length} formation{selectedTitleFormations.length !== 1 ? "s" : ""} disponible{selectedTitleFormations.length !== 1 ? "s" : ""}
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
+              {filterBar}
+              {activeExtraTags}
+
+              <EcoleGroupList formations={selectedTitleFormations} />
+            </div>
           </div>
         </div>
       </div>
