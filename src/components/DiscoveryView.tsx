@@ -388,12 +388,6 @@ function TitleCard({
             <span>{compactVilles(filteredVilles, 3)}</span>
           </>
         )}
-        {pr && (
-          <>
-            <span className="text-border">·</span>
-            <span className="tabular-nums">{pr}</span>
-          </>
-        )}
       </div>
 
       {/* Search result: show matching bloc */}
@@ -512,11 +506,6 @@ function EcoleGroupCard({ group }: { group: EcoleGroup }) {
               {group.ecole}
             </p>
           </div>
-          {pr && (
-            <span className="text-sm font-medium text-text-primary tabular-nums whitespace-nowrap">
-              {pr}
-            </span>
-          )}
         </div>
         {group.villes.length > 0 && (
           <p className="mt-0.5 ml-5 text-xs text-text-secondary">
@@ -558,11 +547,6 @@ function EcoleGroupCard({ group }: { group: EcoleGroup }) {
                         </>
                       )}
                     </span>
-                    {f.prix !== null && f.prix > 0 && (
-                      <span className="tabular-nums text-text-primary font-medium">
-                        {formatPrice(f.prix)} €
-                      </span>
-                    )}
                   </div>
                 ))}
               </div>

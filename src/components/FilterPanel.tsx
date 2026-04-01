@@ -254,17 +254,6 @@ export default function FilterPanel({
           onToggle={handleToggle}
         />
 
-        {/* Price range */}
-        <div className="border-b border-border-light">
-          <PriceFilter
-            min={priceRange[0]}
-            max={priceRange[1]}
-            currentMin={prixMin}
-            currentMax={prixMax}
-            onChange={handlePriceChange}
-            formatPrice={formatPrice}
-          />
-        </div>
       </div>
     </div>
   );

@@ -123,7 +123,7 @@ export default function FormationSheet({
   const f = formation;
 
   const details: [string, string][] = [
-    ["Prix catalogue", formatPrice(f.prix)],
+    ["Prix", "Nous contacter"],
     ["Rythme", f.rythme || "—"],
     ["Date début", f.dateDebut || "—"],
     ["Date fin", f.dateFin || "—"],

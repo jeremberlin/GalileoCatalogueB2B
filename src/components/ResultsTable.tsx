@@ -100,7 +100,6 @@ const columns: SortableColumn[] = [
   { key: "niveau", label: "Niveau" },
   { key: "duree", label: "Durée" },
   { key: "rythme", label: "Rythme" },
-  { key: "prix", label: "Prix", className: "text-right" },
 ];
 
 export default function ResultsTable({
@@ -113,13 +112,16 @@ export default function ResultsTable({
   return (
     <div>
       {/* Results count */}
-      <div className="mb-3">
+      <div className="mb-3 flex items-center justify-between">
         <span className="text-sm text-text-secondary">
           <span className="font-semibold text-text-primary tabular-nums">
             {formatCount(totalCount)}
           </span>{" "}
           formation{totalCount !== 1 ? "s" : ""} trouvée
           {totalCount !== 1 ? "s" : ""}
+        </span>
+        <span className="text-xs text-text-secondary italic">
+          Nous contacter pour devis et prix des formations
         </span>
       </div>
 
@@ -169,9 +171,6 @@ export default function ResultsTable({
                 </td>
                 <td className="whitespace-nowrap px-3 py-2.5 text-text-secondary">
                   {f.rythme}
-                </td>
-                <td className="whitespace-nowrap px-3 py-2.5 text-right tabular-nums font-medium text-text-primary">
-                  {formatPrice(f.prix)}
                 </td>
               </tr>
             ))}

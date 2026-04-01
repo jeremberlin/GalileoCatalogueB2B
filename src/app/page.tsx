@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import {
   Formation,
@@ -48,9 +49,13 @@ export default function Home() {
       <header className="shrink-0 border-b border-border bg-white">
         <div className="flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-bold text-navy tracking-tight">
-              Galileo
-            </h1>
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/logo-galileo.png`}
+              alt="Galileo Global Education"
+              width={120}
+              height={42}
+              priority
+            />
             <div className="hidden sm:block h-5 w-px bg-border" />
             <span className="hidden sm:block text-sm text-text-secondary">
               Catalogue Formations 2026-2027
